@@ -223,59 +223,59 @@ public class Dashboard extends StackPane {
         return withdrawalPane;
     }
 
-    public Node transferView() {
-        VBox transferPane = new VBox();
-        transferPane.setPadding(new Insets(20));
-        transferPane.setSpacing(15);
-
-        Label title = new Label("Effectuer un Virement");
-        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
-
-        GridPane form = new GridPane();
-        form.setHgap(10);
-        form.setVgap(10);
-
-        TextField montantField = new TextField();
-        montantField.setPromptText("Montant à transférer");
-        TextField numCompteField = new TextField();
-        numCompteField.setPromptText("Numéro de compte du destinataire");
-
-        Button validate = new Button("Valider");
-        validate.setStyle("-fx-font-size: 14px; -fx-padding: 8px 30px;");
-
-        validate.setOnAction(e -> {
-            try {
-                if (montantField.getText().isEmpty() || numCompteField.getText().isEmpty()) {
-                    showAlert("Erreur", "Veuillez remplir tous les champs", Alert.AlertType.WARNING);
-                    return;
-                }
-                
-                double montant = Double.parseDouble(montantField.getText());
-                int receiverNum = Integer.parseInt(numCompteField.getText());
-                double newSolde = 0.0;
-                
-                if (newSolde >= 0) {
-                    showAlert("Succès", "Virement de " + montant + " CFA effectué", Alert.AlertType.INFORMATION);
-                    updateSoldeDisplay();
-                    montantField.clear();
-                    numCompteField.clear();
-                } else {
-                    showAlert("Erreur", "Virement échoué. Vérifiez les informations", Alert.AlertType.ERROR);
-                }
-            } catch (NumberFormatException ex) {
-                showAlert("Erreur", "Veuillez entrer des nombres valides", Alert.AlertType.ERROR);
-            }
-        });
-
-        form.add(new Label("Montant:"), 0, 0);
-        form.add(montantField, 1, 0);
-        form.add(new Label("N° compte destinataire:"), 0, 1);
-        form.add(numCompteField, 1, 1);
-        form.add(validate, 2, 1);
-
-        transferPane.getChildren().addAll(title, form);
-        return transferPane;
-    }
+    public Node transferView() { 
+        VBox transferPane = new VBox(); 
+        transferPane.setPadding(new Insets(20)); 
+        transferPane.setSpacing(15); 
+ 
+        Label title = new Label("Effectuer un virement");
+        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;"); 
+ 
+        GridPane form = new GridPane(); 
+        form.setHgap(10); 
+        form.setVgap(10); 
+ 
+        TextField montantField = new TextField(); 
+        montantField.setPromptText("Montant à transférer"); 
+        TextField numCompteField = new TextField(); 
+        numCompteField.setPromptText("Numéro de compte du destinataire"); 
+ 
+        Button validate = new Button("Valider"); 
+        validate.setStyle("-fx-font-size: 14px; -fx-padding: 8px 30px;"); 
+ 
+        validate.setOnAction(e -> { 
+            try { 
+                if (montantField.getText().isEmpty() || numCompteField.getText().isEmpty()) { 
+                    showAlert("Erreur", "Veuillez remplir tous les champs", Alert.AlertType.WARNING); 
+                    return; 
+                } 
+                 
+                double montant = Double.parseDouble(montantField.getText()); 
+                int receiverNum = Integer.parseInt(numCompteField.getText()); 
+                double newSolde = 0.0; 
+                 
+                if (newSolde >= 0) { 
+                    showAlert("Succès", "Virement de " + montant + " CFA effectué", Alert.AlertType.INFORMATION); 
+                    updateSoldeDisplay(); 
+                    montantField.clear(); 
+                    numCompteField.clear(); 
+                } else { 
+                    showAlert("Erreur", "Virement échoué. Vérifier les informations", Alert.AlertType.ERROR);
+                } 
+            } catch (NumberFormatException ex) { 
+                showAlert("Erreur", "Veuillez entrer des nombres valides", Alert.AlertType.ERROR); 
+            } 
+        });  
+ 
+        form.add(new Label("Montant:"), 0, 0); 
+        form.add(montantField, 1, 0); 
+        form.add(new Label("N° Compte destinataire:"), 0, 1); 
+        form.add(numCompteField, 1, 1); 
+        form.add(validate, 2, 1); 
+ 
+        transferPane.getChildren().addAll(title, form); 
+        return transferPane; 
+    } 
 
     public Node historyView() {
         VBox historyPane = new VBox();
