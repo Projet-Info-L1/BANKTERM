@@ -1,5 +1,9 @@
 package com.example.VUE;
 
+import com.example.Controleur.Controleur;
+import com.example.MODELE.Compte;
+import com.example.MODELE.User;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -19,27 +23,35 @@ import javafx.scene.paint.Color;
 import java.util.List;
 import java.util.Map;
 
+public class UserDashboard extends StackPane {
 
-public class Dashboard extends StackPane {
     private BorderPane layout;
+    private EventsContol event;
     private Runnable onLogout;
     private Label soldeLabel;
     private VBox historyContainer;
 
-    public Dashboard() {        
+    public UserDashboard(EventsContol event, Runnable onLogout) {
+        this.event = event;
+        this.onLogout = onLogout;
+        
         layout = new BorderPane();
         layout.setStyle("-fx-background-color: #f1f1f1; -fx-background-radius: 20 20;");
 
+        // Barre de navigation
         HBox navBar = createNavBar();
         layout.setTop(navBar);
 
+        // Barre latérale
         VBox sideBar = createSideBar();
         layout.setLeft(sideBar);
 
+        // Zone principale
         BorderPane mainContain = new BorderPane();
         mainContain.setCenter(accountView());
         layout.setCenter(mainContain);
 
+        // Gestion des clics de menu - récupérer les hyperlinks depuis la VBox du menu
         VBox menuBox = (VBox) sideBar.getChildren().get(1);
         Hyperlink account = (Hyperlink) menuBox.getChildren().get(0);
         Hyperlink deposit = (Hyperlink) menuBox.getChildren().get(1);
@@ -109,6 +121,9 @@ public class Dashboard extends StackPane {
         accountPane.setSpacing(15);
         accountPane.setStyle("-fx-background-color: #fff; -fx-border-radius: 10;");
 
+        Compte compte = event.getCurrentCompte();
+        User user = compte.getUser();
+
         Label title = new Label("Mon Compte");
         title.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #333;");
 
@@ -117,12 +132,12 @@ public class Dashboard extends StackPane {
         grid.setVgap(15);
         grid.setStyle("-fx-padding: 10;");
 
-        addField(grid, 0, "Numéro de compte:", "Le numéro de compte ici");
-        addField(grid, 1, "Nom:", "Le nom ici");
-        addField(grid, 2, "Prénom:", "Le prénom ici");
-        addField(grid, 3, "Âge:", "L'âge ici");
+        addField(grid, 0, "Numéro de compte:", String.valueOf(compte.getNumCompte()));
+        addField(grid, 1, "Nom:", user.getName());
+        addField(grid, 2, "Prénom:", user.getLastName());
+        addField(grid, 3, "Âge:", String.valueOf(user.getAge()));
 
-        soldeLabel = new Label("Solde: " + String.format("%.2f CFA", 0.0));
+        soldeLabel = new Label("Solde: " + String.format("%.2f CFA", compte.getSolde()));
         soldeLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #28a745;");
 
         accountPane.getChildren().addAll(title, grid, soldeLabel);
@@ -155,7 +170,7 @@ public class Dashboard extends StackPane {
                 }
                 
                 double montant = Double.parseDouble(montantField.getText());
-                double newSolde = 0.0;
+                double newSolde = event.deposit("Dépôt en espèces", montant);
                 
                 if (newSolde >= 0) {
                     showAlert("Succès", "Dépôt de " + montant + " CFA effectué", Alert.AlertType.INFORMATION);
@@ -201,7 +216,7 @@ public class Dashboard extends StackPane {
                 }
                 
                 double montant = Double.parseDouble(montantField.getText());
-                double newSolde = 0.0;
+                double newSolde = event.withdrawal("Retrait en espèces", montant);
                 
                 if (newSolde >= 0) {
                     showAlert("Succès", "Retrait de " + montant + " CFA effectué", Alert.AlertType.INFORMATION);
@@ -252,7 +267,7 @@ public class Dashboard extends StackPane {
                 
                 double montant = Double.parseDouble(montantField.getText());
                 int receiverNum = Integer.parseInt(numCompteField.getText());
-                double newSolde = 0.0;
+                double newSolde = event.transfer(montant, receiverNum);
                 
                 if (newSolde >= 0) {
                     showAlert("Succès", "Virement de " + montant + " CFA effectué", Alert.AlertType.INFORMATION);
@@ -303,7 +318,8 @@ public class Dashboard extends StackPane {
         if (historyContainer == null) return;
         
         historyContainer.getChildren().clear();
-        List<Map<String, Object>> transactions = null;
+        Compte compte = event.getCurrentCompte();
+        List<Map<String, Object>> transactions = event.getHistory().getHistorySorted(compte.getNumCompte());
 
         if (transactions.isEmpty()) {
             Label empty = new Label("Aucune transaction pour le moment");
@@ -311,7 +327,7 @@ public class Dashboard extends StackPane {
             historyContainer.getChildren().add(empty);
         } else {
             for (Map<String, Object> tx : transactions) {
-                Label txLabel = new Label();
+                Label txLabel = new Label(event.getHistory().formatTransaction(tx));
                 txLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #333; -fx-padding: 8; -fx-background-color: #fff; -fx-border-radius: 3;");
                 txLabel.setWrapText(true);
                 historyContainer.getChildren().add(txLabel);
@@ -321,7 +337,8 @@ public class Dashboard extends StackPane {
 
     private void updateSoldeDisplay() {
         if (soldeLabel != null) {
-            soldeLabel.setText("Solde: " + String.format("%.2f CFA", 0.0));
+            Compte compte = event.getCurrentCompte();
+            soldeLabel.setText("Solde: " + String.format("%.2f CFA", compte.getSolde()));
         }
     }
 
@@ -335,7 +352,7 @@ public class Dashboard extends StackPane {
     }
 
     private void logout() {
-        logout();
+        event.logout();
         if (onLogout != null) {
             onLogout.run();
         }
@@ -349,4 +366,3 @@ public class Dashboard extends StackPane {
         alert.showAndWait();
     }
 }
-
