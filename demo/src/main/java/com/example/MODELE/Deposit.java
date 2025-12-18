@@ -1,5 +1,5 @@
 package com.example.MODELE;
 
-public class Modele {
+public class Deposit {
 
 }
