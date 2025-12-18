@@ -1,5 +1,8 @@
 package com.example.VUE;
 
+
+import com.example.Controleur.Controleur;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
@@ -16,10 +19,16 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
-public class Login extends StackPane { 
-    private VBox container;
 
-        public Login() {
+public class LoginUI extends StackPane {
+
+    private VBox container;
+    private EventsContol event;
+    private Runnable onSuccessfulLogin;
+
+    public LoginUI(EventsContol eventController, Runnable onSuccessfulLogin) {
+        this.event = eventController;
+        this.onSuccessfulLogin = onSuccessfulLogin;
         container = new VBox(20);
         container.setMaxWidth(400);
         container.setMaxHeight(Double.MIN_VALUE);
@@ -58,6 +67,30 @@ public class Login extends StackPane {
 
         Button loginButton = new Button("Se connecter");
         loginButton.setStyle("-fx-font-size: 12px; -fx-padding: 8px 40px;");
+
+        loginButton.setOnAction(e -> {
+            try {
+                if (numCompteField.getText().isEmpty() || pinField.getText().isEmpty()) {
+                    showAlert("Erreur", "Veuillez remplir tous les champs", Alert.AlertType.WARNING);
+                    return;
+                }
+
+                int numCompte = Integer.parseInt(numCompteField.getText());
+                int pin = Integer.parseInt(pinField.getText());
+                
+                if (event.login(numCompte, pin)) {
+                    showAlert("Succès", "Connexion réussie!", Alert.AlertType.INFORMATION);
+                    if (onSuccessfulLogin != null) {
+                        onSuccessfulLogin.run();
+                    }
+                } else {
+                    showAlert("Erreur", "Identifiants invalides", Alert.AlertType.ERROR);
+                    pinField.clear();
+                }
+            } catch (NumberFormatException ex) {
+                showAlert("Erreur", "Veuillez entrer des nombres valides", Alert.AlertType.ERROR);
+            }
+        });
 
         HBox text = new HBox();
         Hyperlink toSignIn = new Hyperlink("S'inscrire.");
@@ -132,6 +165,15 @@ public class Login extends StackPane {
                 int age = Integer.parseInt(ageField.getText());
                 int pin = Integer.parseInt(pinField.getText());
 
+                if (event.signIn(name, lastName, age, pin)) {
+                    showAlert("Succès", "Compte créé avec succès!\nNuméro de compte: " + event.getCurrentCompte().getNumCompte(),
+                            Alert.AlertType.INFORMATION);
+                    if (onSuccessfulLogin != null) {
+                        onSuccessfulLogin.run();
+                    }
+                } else {
+                    showAlert("Erreur", "Erreur lors de la création du compte", Alert.AlertType.ERROR);
+                }
             } catch (NumberFormatException ex) {
                 showAlert("Erreur", "Veuillez entrer des nombres valides", Alert.AlertType.ERROR);
             }
@@ -147,6 +189,9 @@ public class Login extends StackPane {
         container.getChildren().addAll(title, form, signInButton, text);
     }
 
+    public EventsContol getEvent() {
+        return event;
+    }
 
     private void showAlert(String title, String message, Alert.AlertType type) {
         Alert alert = new Alert(type);
@@ -155,5 +200,4 @@ public class Login extends StackPane {
         alert.setContentText(message);
         alert.showAndWait();
     }
-
 }
