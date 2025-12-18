@@ -1,7 +1,7 @@
 package com.example;
 
 import com.example.VUE.Dashboard;
-import com.example.VUE.Login;
+import com.example.VUE.LoginUI;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -24,7 +24,7 @@ public class Main extends Application {
     }
 
     private void showLoginScreen() {
-        Login loginUI = new Login();
+        LoginUI loginUI = new LoginUI();
         Scene scene = new Scene(loginUI, 1080, 720);
         primaryStage.setScene(scene);
     }

@@ -1,4 +1,4 @@
-package com.javafx.Models;
+package com.example.MODELE;
 
 public class History {
     private String operaName;
